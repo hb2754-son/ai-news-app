@@ -71,6 +71,10 @@ drizzle/, drizzle.config.ts   마이그레이션
 - `npm run lint` — ESLint (`eslint.config.mjs`의 flat config)
 - 테스트 러너는 아직 설정되어 있지 않다.
 
+## UI 가이드
+
+화면·컴포넌트를 작성하거나 수정하기 전에 `ui.md`를 먼저 읽고 따른다. 앱 이름, 레이아웃(카테고리 바 + 뉴스 카드 그리드), Tailwind 디자인 토큰, 컴포넌트별 스타일, 상태 화면, 접근성 규칙이 정리되어 있다.
+
 ## Next.js 버전 주의사항
 
 `AGENTS.md`에 따르면 이 Next.js 버전은 기존 관례와 다른 변경점이 있습니다. Next.js 코드(라우팅, 미들웨어, 라우트 핸들러 등)를 작성하기 전에 `node_modules/next/dist/docs/`의 관련 가이드를 먼저 읽으세요.
