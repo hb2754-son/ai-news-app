@@ -1,29 +1,22 @@
 import { Suspense } from "react";
-import { Show, UserButton } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import SignInModal from "@/components/auth/SignInModal";
 
-export default function Home() {
+export default async function Home() {
+  // 로그인한 사용자는 메인 화면인 대시보드로 보낸다.
+  const { userId } = await auth();
+  if (userId) redirect("/dashboard");
+
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 font-sans dark:bg-black">
-      <header className="flex items-center justify-between border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
-        <h1 className="text-lg font-semibold text-black dark:text-zinc-50">
-          AI 뉴스 수집기
-        </h1>
-        <Suspense>
-          <Show when="signed-in">
-            <UserButton />
-          </Show>
-        </Suspense>
+    <div className="flex flex-1 flex-col bg-slate-50 font-sans dark:bg-slate-950">
+      <header className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div className="mx-auto flex h-14 w-full max-w-6xl items-center px-4 sm:px-6 lg:px-8">
+          <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            AI 뉴스 수집기
+          </h1>
+        </div>
       </header>
-      <main className="flex-1 px-6 py-8">
-        <Suspense>
-          <Show when="signed-in">
-            <p className="text-zinc-600 dark:text-zinc-400">
-              로그인되었습니다. 뉴스 카드가 여기에 표시됩니다.
-            </p>
-          </Show>
-        </Suspense>
-      </main>
       <Suspense>
         <SignInModal />
       </Suspense>
