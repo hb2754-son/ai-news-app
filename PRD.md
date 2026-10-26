@@ -121,6 +121,7 @@
 | translated_summary | text | 번역된 요약 (한국어) |
 | source_url | varchar(1000) | 원문 링크 |
 | source_name | varchar(100) | 출처 사이트명 |
+| author | varchar(200) | 원문 기사 작성자 (선택) |
 | image_url | varchar(1000) | 썸네일 이미지 URL |
 | category_id | integer FK | categories 테이블 참조 |
 | published_at | timestamp | 원문 발행일 |
