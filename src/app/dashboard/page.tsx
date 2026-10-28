@@ -2,8 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import CategoryFilter from "@/components/news/CategoryFilter";
+import FetchNewsButton from "@/components/news/FetchNewsButton";
 import NewsList from "@/components/news/NewsList";
-import { getArticles, getArticleTotal } from "@/db/queries/articles";
+import Pagination from "@/components/news/Pagination";
+import {
+  ARTICLES_PER_PAGE,
+  getArticleCount,
+  getArticles,
+  getArticleTotal,
+} from "@/db/queries/articles";
 import { getCategoriesWithCounts } from "@/db/queries/categories";
 
 export const metadata: Metadata = {
@@ -13,15 +20,23 @@ export const metadata: Metadata = {
 export default async function DashboardPage({
   searchParams,
 }: PageProps<"/dashboard">) {
-  const { category } = await searchParams;
+  const { category, page: pageParam } = await searchParams;
   const parsed = typeof category === "string" ? Number(category) : NaN;
   const selectedId = Number.isInteger(parsed) ? parsed : undefined;
+  const parsedPage = typeof pageParam === "string" ? Number(pageParam) : NaN;
+  const requestedPage =
+    Number.isInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
 
-  const [categories, total, articles] = await Promise.all([
+  const [categories, total, filteredTotal] = await Promise.all([
     getCategoriesWithCounts(),
     getArticleTotal(),
-    getArticles(selectedId),
+    getArticleCount(selectedId),
   ]);
+
+  // 범위를 벗어난 페이지(?page=999 등)는 마지막 페이지로 맞춘다.
+  const totalPages = Math.max(1, Math.ceil(filteredTotal / ARTICLES_PER_PAGE));
+  const page = Math.min(requestedPage, totalPages);
+  const articles = await getArticles(selectedId, page);
 
   return (
     <div className="flex flex-1 flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
@@ -33,14 +48,17 @@ export default async function DashboardPage({
           >
             AI 뉴스 수집기
           </Link>
-          <UserButton />
+          <div className="flex items-center gap-3">
+            <FetchNewsButton />
+            <UserButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-baseline justify-between gap-4">
           <h2 className="text-2xl font-bold tracking-tight">최신 AI 뉴스</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            {articles.length}건
+            총 {filteredTotal}건
           </p>
         </div>
         <CategoryFilter
@@ -49,6 +67,7 @@ export default async function DashboardPage({
           selectedId={selectedId}
         />
         <NewsList articles={articles} filtered={selectedId !== undefined} />
+        <Pagination page={page} totalPages={totalPages} categoryId={selectedId} />
       </main>
     </div>
   );
