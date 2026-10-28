@@ -6,7 +6,7 @@
 ## 1. 디자인 원칙
 
 - **읽기 우선**: 본문은 충분한 행간과 여백을 두고, 장식은 최소화한다.
-- **차분한 톤**: 무채색(slate) 바탕에 포인트 색 하나(indigo)만 쓴다.
+- **차분한 톤**: 무채색(slate) 바탕에 포인트 색 하나(indigo)만 쓴다. 단, 카테고리 구분은 예외로 §4.6의 카테고리 색을 쓴다.
 - **일관성**: 간격·모서리·그림자는 아래 토큰만 사용한다.
 - **라이트/다크 모두 지원**: `dark:` 변형을 함께 지정한다 (`prefers-color-scheme` 기준).
 - **한국어 가독성**: 본문 `leading-relaxed`, 줄바꿈은 `break-keep`을 사용한다.
@@ -87,7 +87,7 @@
 - **카테고리 추가 버튼** (목록의 맨 끝):
   - `inline-flex items-center gap-1 rounded-full border border-dashed border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-500 hover:border-indigo-500 hover:text-indigo-600 dark:border-slate-600 dark:text-slate-400`
   - 아이콘 `+` + 라벨 "카테고리 추가". 필터 칩과 구분되도록 **점선 테두리**를 쓴다.
-  - 클릭 시 동작(별도 페이지 `/categories` vs 모달)은 PRD §8 미정 사항이므로 확정 후 연결한다.
+  - 클릭하면 **모달**(`components/categories/AddCategoryButton`, 네이티브 `<dialog>`)이 열려 이름(필수)과 설명(선택)을 입력받는다. 설명은 Claude 분류 프롬프트에 쓰인다. 저장하면 `POST /api/categories` 호출 후 목록을 새로고침한다.
 - 선택 상태는 URL 쿼리(`?category=<id>`)로 관리해 새로고침·공유에도 유지한다.
 
 ### 4.3 뉴스 카드 (`NewsCard`)
@@ -130,6 +130,16 @@
 - **필터 결과 없음**: "이 카테고리에는 기사가 없어요" + "전체 보기" 링크.
 - **오류**: `rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700` (다크: `dark:border-red-900 dark:bg-red-950 dark:text-red-300`) 배너 + 재시도 안내.
 - **완료 알림**: 수집 후 "새 기사 N건을 가져왔어요" 토스트 또는 헤더 아래 인라인 메시지.
+
+### 4.6 카테고리 색
+
+카테고리는 색으로 구분한다. 색은 `components/ui/category-color.ts`의 `getCategoryColor(categoryId)` 한 곳에서 관리한다.
+
+- 팔레트 6색(sky, emerald, amber, rose, violet, teal)을 카테고리 **id 순서대로** 돌려 쓴다. 카테고리를 추가해도 자동으로 색이 배정된다.
+- 미분류는 slate(무채색).
+- 카드 배지: `bg-{color}-50 text-{color}-700` (다크: `dark:bg-{color}-950 dark:text-{color}-300`)
+- 필터 칩: 앞에 색 점(`size-2 rounded-full`)을 두고, 선택되면 `bg-{color}-700 text-white`로 채운다. 점은 장식이므로 `aria-hidden`이며, 선택 상태는 색뿐 아니라 `aria-current`와 채움으로도 구분한다.
+- 클래스 이름은 Tailwind가 정적으로 찾을 수 있도록 `category-color.ts`에 전부 문자열로 적는다. 새 색을 추가할 때도 같은 방식을 따른다.
 
 ## 5. 반응형
 

@@ -1,4 +1,5 @@
 import type { ArticleListItem } from "@/db/queries/articles";
+import { getCategoryColor } from "@/components/ui/category-color";
 
 const dateFormatter = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul",
@@ -18,15 +19,11 @@ export default function NewsCard({ article }: { article: ArticleListItem }) {
   return (
     <article className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-center justify-between gap-2">
-        {article.categoryName ? (
-          <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
-            {article.categoryName}
-          </span>
-        ) : (
-          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-            미분류
-          </span>
-        )}
+        <span
+          className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getCategoryColor(article.categoryId).badge}`}
+        >
+          {article.categoryName ?? "미분류"}
+        </span>
         <span className="truncate text-xs text-slate-500 dark:text-slate-400">
           {article.source}
         </span>
