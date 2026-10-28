@@ -1,4 +1,4 @@
-import { count, desc, eq, sql } from "drizzle-orm";
+import { count, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, categories } from "@/db/schema";
 
@@ -17,6 +17,7 @@ export async function getArticles(categoryId?: number, page = 1) {
       summaryKo: articles.summaryKo,
       publishedAt: articles.publishedAt,
       fetchedAt: articles.fetchedAt,
+      categoryId: articles.categoryId,
       categoryName: categories.name,
     })
     .from(articles)
@@ -42,8 +43,18 @@ export async function getArticleCount(categoryId?: number) {
 
 export type ArticleListItem = Awaited<ReturnType<typeof getArticles>>[number];
 
+// 주어진 url 중 이미 저장된 것만 돌려준다 (Claude 호출 전에 신규 기사만 추리는 용도)
+export async function getExistingUrls(urls: string[]) {
+  if (urls.length === 0) return new Set<string>();
+  const rows = await db
+    .select({ url: articles.url })
+    .from(articles)
+    .where(inArray(articles.url, urls));
+  return new Set(rows.map((row) => row.url));
+}
+
 // url이 이미 있는 기사는 건너뛰고, 새로 저장된 건수를 반환한다.
-// 번역 전 단계라 title_ko / summary_ko는 원문 값으로 임시 채운다.
+// titleKo / summaryKo / categoryId가 없으면(번역 실패) 원문 값과 미분류로 임시 저장한다.
 export async function insertArticles(
   items: {
     url: string;
@@ -52,6 +63,9 @@ export async function insertArticles(
     title: string;
     summary: string;
     publishedAt: Date;
+    titleKo?: string;
+    summaryKo?: string;
+    categoryId?: number | null;
   }[],
 ) {
   if (items.length === 0) return 0;
@@ -64,8 +78,9 @@ export async function insertArticles(
         source: item.source,
         author: item.author,
         titleOriginal: item.title,
-        titleKo: item.title,
-        summaryKo: item.summary,
+        titleKo: item.titleKo ?? item.title,
+        summaryKo: item.summaryKo ?? item.summary,
+        categoryId: item.categoryId ?? null,
         publishedAt: item.publishedAt,
       })),
     )

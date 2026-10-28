@@ -1,8 +1,13 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import { insertArticles } from "@/db/queries/articles";
+import { getExistingUrls, insertArticles } from "@/db/queries/articles";
+import { getAllCategories } from "@/db/queries/categories";
+import { enrichArticles } from "@/lib/claude/summarize";
 import { fetchRecentItems } from "@/lib/rss/parser";
 import { RSS_SOURCES } from "@/lib/rss/sources";
+
+// Claude 배치 호출이 순차로 실행되므로 기본 제한보다 넉넉하게 둔다.
+export const maxDuration = 60;
 
 export async function POST() {
   const { userId } = await auth();
@@ -21,13 +26,35 @@ export async function POST() {
       );
     }
 
-    const inserted = await insertArticles(items);
+    // 이미 저장된 기사는 Claude를 호출하지 않는다.
+    const existing = await getExistingUrls(items.map((item) => item.url));
+    const newItems = items.filter((item) => !existing.has(item.url));
+
+    const categories = await getAllCategories();
+    const enriched = await enrichArticles(newItems, categories);
+    const categoryIdByName = new Map(categories.map((c) => [c.name, c.id]));
+
+    const inserted = await insertArticles(
+      newItems.map((item, i) => {
+        const result = enriched[i];
+        if (!result) return item;
+        return {
+          ...item,
+          titleKo: result.titleKo,
+          summaryKo: result.summaryKo,
+          categoryId: result.categoryName
+            ? (categoryIdByName.get(result.categoryName) ?? null)
+            : null,
+        };
+      }),
+    );
     revalidatePath("/dashboard");
 
     return Response.json({
       fetched: items.length,
       inserted,
       skipped: items.length - inserted,
+      enrichFailed: enriched.filter((r) => !r).length,
       failedSources,
     });
   } catch (error) {

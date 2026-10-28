@@ -1,4 +1,6 @@
 import Link from "next/link";
+import AddCategoryButton from "@/components/categories/AddCategoryButton";
+import { getCategoryColor } from "@/components/ui/category-color";
 
 type CategoryItem = { id: number; name: string; articleCount: number };
 
@@ -32,26 +34,28 @@ export default function CategoryFilter({
         전체
         <span className="ml-1.5 text-xs opacity-70">{total}</span>
       </Link>
-      {categories.map((category) => (
-        <Link
-          key={category.id}
-          href={`/dashboard?category=${category.id}`}
-          aria-current={selectedId === category.id ? "true" : undefined}
-          className={`${chipBase} ${selectedId === category.id ? chipActive : chipIdle}`}
-        >
-          {category.name}
-          <span className="ml-1.5 text-xs opacity-70">
-            {category.articleCount}
-          </span>
-        </Link>
-      ))}
-      {/* 동작(페이지 vs 모달)은 PRD §8 미정 사항이라 확정 후 연결한다. */}
-      <button
-        type="button"
-        className="inline-flex items-center gap-1 rounded-full border border-dashed border-slate-300 px-3.5 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:border-indigo-500 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:border-slate-600 dark:text-slate-400 dark:hover:border-indigo-400 dark:hover:text-indigo-400"
-      >
-        <span aria-hidden="true">+</span> 카테고리 추가
-      </button>
+      {categories.map((category) => {
+        const color = getCategoryColor(category.id);
+        const isActive = selectedId === category.id;
+        return (
+          <Link
+            key={category.id}
+            href={`/dashboard?category=${category.id}`}
+            aria-current={isActive ? "true" : undefined}
+            className={`${chipBase} ${isActive ? color.active : chipIdle}`}
+          >
+            <span
+              aria-hidden="true"
+              className={`mr-1.5 size-2 rounded-full ${isActive ? "bg-white" : color.dot}`}
+            />
+            {category.name}
+            <span className="ml-1.5 text-xs opacity-70">
+              {category.articleCount}
+            </span>
+          </Link>
+        );
+      })}
+      <AddCategoryButton />
     </div>
   );
 }
