@@ -1,5 +1,6 @@
 import type { ArticleListItem } from "@/db/queries/articles";
 import { getCategoryColor } from "@/components/ui/category-color";
+import SaveNewsButton from "./SaveNewsButton";
 
 const dateFormatter = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul",
@@ -44,14 +45,20 @@ export default function NewsCard({ article }: { article: ArticleListItem }) {
         >
           {formatDate(date)}
         </time>
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded text-sm font-medium text-indigo-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:text-indigo-400"
-        >
-          원문 보기 ↗
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded text-sm font-medium text-indigo-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:text-indigo-400"
+          >
+            원문 보기 ↗
+          </a>
+          <SaveNewsButton
+            articleId={article.id}
+            saved={article.notionPageId !== null}
+          />
+        </div>
       </div>
     </article>
   );

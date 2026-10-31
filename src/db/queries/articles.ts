@@ -19,6 +19,7 @@ export async function getArticles(categoryId?: number, page = 1) {
       fetchedAt: articles.fetchedAt,
       categoryId: articles.categoryId,
       categoryName: categories.name,
+      notionPageId: articles.notionPageId,
     })
     .from(articles)
     .leftJoin(categories, eq(articles.categoryId, categories.id))
@@ -88,6 +89,29 @@ export async function insertArticles(
     .returning({ id: articles.id });
 
   return inserted.length;
+}
+
+// Notion 저장용: 기사 1건과 카테고리 이름
+export async function getArticleForNotion(id: number) {
+  const [row] = await db
+    .select({
+      id: articles.id,
+      url: articles.url,
+      titleKo: articles.titleKo,
+      summaryKo: articles.summaryKo,
+      publishedAt: articles.publishedAt,
+      fetchedAt: articles.fetchedAt,
+      categoryName: categories.name,
+      notionPageId: articles.notionPageId,
+    })
+    .from(articles)
+    .leftJoin(categories, eq(articles.categoryId, categories.id))
+    .where(eq(articles.id, id));
+  return row ?? null;
+}
+
+export async function setNotionPageId(id: number, notionPageId: string) {
+  await db.update(articles).set({ notionPageId }).where(eq(articles.id, id));
 }
 
 export async function getArticleTotal() {
