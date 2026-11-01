@@ -71,6 +71,10 @@ drizzle/, drizzle.config.ts   마이그레이션
 - `npm run lint` — ESLint (`eslint.config.mjs`의 flat config)
 - 테스트 러너는 아직 설정되어 있지 않다.
 
+## 커스텀 명령어
+
+- `/news-workflow [브랜치-이름]` (`.claude/commands/news-workflow.md`) — 새 기능 개발 워크플로우. main 확인 → 브랜치 생성(이름이 없으면 기능을 물어 영어 소문자-하이픈 형식으로 제안) → 개발 시작 안내 → '완료'/'done' 입력 시 변경 파일 목록·커밋 메시지 제안 후 커밋하고 main에 병합 → 작업 요약. push는 요청이 있을 때만 한다.
+
 ## UI 가이드
 
 화면·컴포넌트를 작성하거나 수정하기 전에 `ui.md`를 먼저 읽고 따른다. 앱 이름, 레이아웃(카테고리 바 + 뉴스 카드 그리드), Tailwind 디자인 토큰, 컴포넌트별 스타일, 상태 화면, 접근성 규칙이 정리되어 있다.
