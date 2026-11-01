@@ -3,6 +3,7 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import CategoryFilter from "@/components/news/CategoryFilter";
 import FetchNewsButton from "@/components/news/FetchNewsButton";
+import SearchBar from "@/components/news/SearchBar";
 import NewsList from "@/components/news/NewsList";
 import Pagination from "@/components/news/Pagination";
 import {
@@ -20,7 +21,8 @@ export const metadata: Metadata = {
 export default async function DashboardPage({
   searchParams,
 }: PageProps<"/dashboard">) {
-  const { category, page: pageParam } = await searchParams;
+  const { category, page: pageParam, q } = await searchParams;
+  const keyword = typeof q === "string" ? q.trim().slice(0, 100) || undefined : undefined;
   const parsed = typeof category === "string" ? Number(category) : NaN;
   const selectedId = Number.isInteger(parsed) ? parsed : undefined;
   const parsedPage = typeof pageParam === "string" ? Number(pageParam) : NaN;
@@ -30,13 +32,13 @@ export default async function DashboardPage({
   const [categories, total, filteredTotal] = await Promise.all([
     getCategoriesWithCounts(),
     getArticleTotal(),
-    getArticleCount(selectedId),
+    getArticleCount(selectedId, keyword),
   ]);
 
   // 범위를 벗어난 페이지(?page=999 등)는 마지막 페이지로 맞춘다.
   const totalPages = Math.max(1, Math.ceil(filteredTotal / ARTICLES_PER_PAGE));
   const page = Math.min(requestedPage, totalPages);
-  const articles = await getArticles(selectedId, page);
+  const articles = await getArticles(selectedId, page, keyword);
 
   return (
     <div className="flex flex-1 flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
@@ -61,13 +63,26 @@ export default async function DashboardPage({
             총 {filteredTotal}건
           </p>
         </div>
-        <CategoryFilter
-          categories={categories}
-          total={total}
-          selectedId={selectedId}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <CategoryFilter
+            categories={categories}
+            total={total}
+            selectedId={selectedId}
+            keyword={keyword}
+          />
+          <SearchBar keyword={keyword} categoryId={selectedId} />
+        </div>
+        <NewsList
+          articles={articles}
+          filtered={selectedId !== undefined}
+          keyword={keyword}
         />
-        <NewsList articles={articles} filtered={selectedId !== undefined} />
-        <Pagination page={page} totalPages={totalPages} categoryId={selectedId} />
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          categoryId={selectedId}
+          keyword={keyword}
+        />
       </main>
     </div>
   );

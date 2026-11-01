@@ -33,16 +33,19 @@ export default function Pagination({
   page,
   totalPages,
   categoryId,
+  keyword,
 }: {
   page: number;
   totalPages: number;
   categoryId?: number;
+  keyword?: string;
 }) {
   if (totalPages <= 1) return null;
 
   const hrefFor = (target: number) => {
     const params = new URLSearchParams();
     if (categoryId !== undefined) params.set("category", String(categoryId));
+    if (keyword) params.set("q", keyword);
     if (target > 1) params.set("page", String(target));
     const query = params.toString();
     return query ? `/dashboard?${query}` : "/dashboard";

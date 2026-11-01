@@ -15,11 +15,14 @@ export default function CategoryFilter({
   categories,
   total,
   selectedId,
+  keyword,
 }: {
   categories: CategoryItem[];
   total: number;
   selectedId?: number;
+  keyword?: string;
 }) {
+  const qs = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
   return (
     <div
       role="group"
@@ -27,7 +30,7 @@ export default function CategoryFilter({
       className="flex flex-wrap items-center gap-2"
     >
       <Link
-        href="/dashboard"
+        href={keyword ? `/dashboard?q=${encodeURIComponent(keyword)}` : "/dashboard"}
         aria-current={selectedId === undefined ? "true" : undefined}
         className={`${chipBase} ${selectedId === undefined ? chipActive : chipIdle}`}
       >
@@ -40,7 +43,7 @@ export default function CategoryFilter({
         return (
           <Link
             key={category.id}
-            href={`/dashboard?category=${category.id}`}
+            href={`/dashboard?category=${category.id}${qs}`}
             aria-current={isActive ? "true" : undefined}
             className={`${chipBase} ${isActive ? color.active : chipIdle}`}
           >
