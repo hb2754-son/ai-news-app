@@ -1,12 +1,30 @@
-import { count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, categories } from "@/db/schema";
 
 export const ARTICLES_PER_PAGE = 9;
 
+// 카테고리·키워드 조건. 키워드는 한국어 제목·요약·영어 원제에서 대소문자 구분 없이 찾는다.
+function buildWhere(categoryId?: number, keyword?: string) {
+  const conditions = [];
+  if (categoryId !== undefined) conditions.push(eq(articles.categoryId, categoryId));
+  if (keyword) {
+    // LIKE 와일드카드(% _ \)는 글자 그대로 검색되도록 이스케이프한다.
+    const pattern = `%${keyword.replace(/[\\%_]/g, "\\$&")}%`;
+    conditions.push(
+      or(
+        ilike(articles.titleKo, pattern),
+        ilike(articles.summaryKo, pattern),
+        ilike(articles.titleOriginal, pattern),
+      ),
+    );
+  }
+  return conditions.length > 0 ? and(...conditions) : undefined;
+}
+
 // 최신순: 발행일 내림차순(발행일 없는 기사는 뒤로), 같으면 수집 시각 내림차순
 // 페이지 사이에 순서가 흔들리지 않도록 마지막에 id로 한 번 더 정렬한다.
-export async function getArticles(categoryId?: number, page = 1) {
+export async function getArticles(categoryId?: number, page = 1, keyword?: string) {
   return db
     .select({
       id: articles.id,
@@ -23,7 +41,7 @@ export async function getArticles(categoryId?: number, page = 1) {
     })
     .from(articles)
     .leftJoin(categories, eq(articles.categoryId, categories.id))
-    .where(categoryId === undefined ? undefined : eq(articles.categoryId, categoryId))
+    .where(buildWhere(categoryId, keyword))
     .orderBy(
       sql`${articles.publishedAt} desc nulls last`,
       desc(articles.fetchedAt),
@@ -34,11 +52,11 @@ export async function getArticles(categoryId?: number, page = 1) {
 }
 
 // 카테고리 필터가 적용된 전체 기사 수 (페이지 수 계산용)
-export async function getArticleCount(categoryId?: number) {
+export async function getArticleCount(categoryId?: number, keyword?: string) {
   const [row] = await db
     .select({ total: count() })
     .from(articles)
-    .where(categoryId === undefined ? undefined : eq(articles.categoryId, categoryId));
+    .where(buildWhere(categoryId, keyword));
   return row.total;
 }
 
