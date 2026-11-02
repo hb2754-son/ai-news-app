@@ -3,6 +3,7 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import CategoryFilter from "@/components/news/CategoryFilter";
 import FetchNewsButton from "@/components/news/FetchNewsButton";
+import NewsCountBadge from "@/components/news/NewsCountBadge";
 import SearchBar from "@/components/news/SearchBar";
 import NewsList from "@/components/news/NewsList";
 import Pagination from "@/components/news/Pagination";
@@ -18,16 +19,13 @@ export const metadata: Metadata = {
   title: "대시보드 · AI 뉴스 수집기",
 };
 
-export default async function DashboardPage({
-  searchParams,
-}: PageProps<"/dashboard">) {
+export default async function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
   const { category, page: pageParam, q } = await searchParams;
   const keyword = typeof q === "string" ? q.trim().slice(0, 100) || undefined : undefined;
   const parsed = typeof category === "string" ? Number(category) : NaN;
   const selectedId = Number.isInteger(parsed) ? parsed : undefined;
   const parsedPage = typeof pageParam === "string" ? Number(pageParam) : NaN;
-  const requestedPage =
-    Number.isInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
+  const requestedPage = Number.isInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
 
   const [categories, total, filteredTotal] = await Promise.all([
     getCategoriesWithCounts(),
@@ -44,10 +42,7 @@ export default async function DashboardPage({
     <div className="flex flex-1 flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/dashboard"
-            className="truncate text-lg font-bold tracking-tight"
-          >
+          <Link href="/dashboard" className="truncate text-lg font-bold tracking-tight">
             AI 뉴스 수집기
           </Link>
           <div className="flex items-center gap-3">
@@ -58,7 +53,10 @@ export default async function DashboardPage({
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-baseline justify-between gap-4">
-          <h2 className="text-2xl font-bold tracking-tight">최신 AI 뉴스</h2>
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="text-2xl font-bold tracking-tight">최신 AI 뉴스</h2>
+            <NewsCountBadge total={total} />
+          </div>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             총 {filteredTotal}건
           </p>
