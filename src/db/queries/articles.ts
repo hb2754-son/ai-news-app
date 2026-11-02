@@ -136,3 +136,12 @@ export async function getArticleTotal() {
   const [row] = await db.select({ total: count() }).from(articles);
   return row.total;
 }
+
+// 기사 1건 삭제. 삭제된 행이 있으면 true.
+export async function deleteArticle(id: number) {
+  const deleted = await db
+    .delete(articles)
+    .where(eq(articles.id, id))
+    .returning({ id: articles.id });
+  return deleted.length > 0;
+}
