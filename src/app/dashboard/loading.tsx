@@ -17,7 +17,7 @@ export default function DashboardLoading() {
       >
         <h2 className="text-2xl font-bold tracking-tight">최신 AI 뉴스</h2>
         <p className="sr-only">뉴스를 불러오는 중…</p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }, (_, i) => (
             <NewsCardSkeleton key={i} />
           ))}

@@ -42,7 +42,7 @@ export default function DeleteNewsButton({
         aria-busy={pending}
         aria-label="뉴스 삭제"
         title="삭제"
-        className="-mr-1.5 -mt-1 inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-red-400"
+        className="-mr-2 -mt-1.5 inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition pointer-fine:opacity-0 pointer-fine:group-focus-within:opacity-100 pointer-fine:group-hover:opacity-100 hover:bg-slate-100 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-red-400"
       >
         <svg
           aria-hidden="true"
@@ -59,7 +59,7 @@ export default function DeleteNewsButton({
       {error && (
         <p
           role="alert"
-          className="absolute inset-x-5 top-12 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
+          className="absolute inset-x-5 top-14 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
         >
           {error}
         </p>
