@@ -38,8 +38,8 @@
 |---|---|
 | 앱 이름(헤더) | `text-lg font-bold tracking-tight` |
 | 페이지 제목 | `text-2xl font-bold tracking-tight` |
-| 카드 제목 | `text-base font-semibold leading-snug` |
-| 카드 요약 | `text-sm leading-relaxed text-slate-600 dark:text-slate-300` |
+| 카드 제목 | `text-lg font-semibold leading-snug tracking-tight` |
+| 카드 요약 | `text-sm leading-7 text-slate-600 dark:text-slate-300` |
 | 메타(출처·날짜) | `text-xs text-slate-500 dark:text-slate-400` |
 
 ## 3. 레이아웃
@@ -60,7 +60,7 @@
 
 - 컨테이너: `mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8`
 - 페이지 세로 간격: `py-8`, 섹션 간 `space-y-6`
-- 카드 그리드: `grid gap-4 sm:grid-cols-2 lg:grid-cols-3`
+- 카드 그리드: `grid gap-5 sm:grid-cols-2 lg:grid-cols-3`
 - 헤더: `sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80`
 
 ## 4. 컴포넌트
@@ -98,16 +98,20 @@
 │ 한국어 제목 (최대 2줄)          │
 │ 한국어 요약 (최대 3~4줄)        │
 │                               │
-│ 2026.10.27     [원문 ↗][Notion]│  ← 하단: 날짜 · 액션
+│ ───────────────────────────── │
+│ TechCrunch     [원문 ↗][저장]  │  ← 하단: 출처·날짜(2줄) · 액션
+│ 2026.10.27                    │
 └───────────────────────────────┘
 ```
 
-- 컨테이너: `flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900`
+- 컨테이너: `group relative flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900`
+- hover: `-translate-y-0.5` 살짝 뜨고 `shadow-lg`, 테두리가 한 단계 진해진다(150~200ms). 카드 상단에 카테고리 색 선(`h-0.5`)이 왼쪽에서 오른쪽으로 그어진다. 키보드 포커스(`group-focus-within`)에서도 같다. `motion-reduce`에서는 이동·전환을 끈다.
+- 삭제 버튼: 마우스 환경(`pointer-fine`)에서는 hover/포커스 때만 보이고, 터치 환경에서는 항상 보인다.
 - 카테고리 배지: `rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300`
   (미분류는 `bg-slate-100 text-slate-600`)
-- 제목: `mt-3 line-clamp-2 text-base font-semibold leading-snug`
-- 요약: `mt-2 line-clamp-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300`
-- 하단 영역: `mt-auto flex items-center justify-between pt-4` — 카드 높이가 달라도 하단이 정렬된다.
+- 제목: `mt-4 line-clamp-2 text-lg font-semibold leading-snug tracking-tight`
+- 요약: `mt-2.5 line-clamp-4 text-sm leading-7 text-slate-600 dark:text-slate-300`
+- 하단 영역: `mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-slate-800` — 카드 높이가 달라도 하단이 정렬된다. 출처는 `font-medium text-slate-700`, 날짜는 그 아래 `tabular-nums text-slate-500`.
 - 원문 링크: 텍스트 링크, `target="_blank" rel="noopener noreferrer"`
 - **Notion 저장** 버튼: 보조 버튼 스타일. 저장 완료 시 "저장됨"(비활성)으로 바뀐다.
 - 영어 원제는 카드에 노출하지 않고, 필요하면 제목에 `title` 속성(툴팁)으로만 제공한다.
