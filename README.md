@@ -79,6 +79,11 @@ drizzle/        마이그레이션
 
 RSS 소스는 `src/lib/rss/sources.ts`에서 관리합니다. 현재 소스는 TechCrunch(AI), The Verge(AI)이며 배열에 한 줄을 추가하면 늘릴 수 있습니다.
 
+## 사용한 플러그인
+
+- frontend-design : UI 품질 향상
+- commit-commands : 깃 워크플로 자동화
+
 ## 문서
 
 - `PRD.md` — 제품 요구사항
