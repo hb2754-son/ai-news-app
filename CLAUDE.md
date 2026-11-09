@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 해외 AI 뉴스를 RSS로 수집하고, Claude가 한국어로 번역·요약·카테고리 분류해 카드 목록으로 보여주는 다중 사용자 웹 앱. 사용자는 원하는 뉴스를 Notion에 저장할 수 있다. 상세 요구사항은 `PRD.md`(한국어)가 기준이며, 현재는 `create-next-app` 뼈대와 의존성만 설치된 상태로 앱 코드는 아직 없다.
 
+## UI 가이드
+
+화면 구성, 카드·카테고리 바 스타일 등 UI를 만들거나 수정할 때는 `ui.md`를 먼저 읽고 따른다.
+
 ## 명령어
 
 - `npm run dev` / `npm run build` / `npm run start`
@@ -19,7 +23,7 @@ Next.js 16.4.5 / React 19.3. `AGENTS.md`에 따르면 학습된 지식과 API·�
 
 ## 기술 스택
 
-Next.js(App Router) · Clerk(인증) · Neon Postgres + Drizzle ORM · Claude API(`@anthropic-ai/sdk`) · Notion MCP 서버(`@modelcontextprotocol/sdk`, 사용자별 OAuth) · RSS 파싱 `fast-xml-parser`.
+Next.js(App Router) · Clerk(인증) · Neon Postgres + Drizzle ORM · Claude API(` xanthropic-ai/sdk`) · Notion MCP 서버(`@modelcontextprotocol/sdk`, 사용자별 OAuth) · RSS 파싱 `fast-xml-parser`.
 
 ## 핵심 흐름
 
