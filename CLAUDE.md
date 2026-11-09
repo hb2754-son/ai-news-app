@@ -40,7 +40,7 @@ Next.js(App Router) · Clerk(인증) · Neon Postgres + Drizzle ORM · Claude AP
 
 ## 뉴스 소스
 
-`src/lib/sources.ts` 한 곳에서만 관리한다. 현재 TechCrunch AI, The Verge AI 두 곳(URL은 PRD §5). 구현 시 URL 유효성을 재확인한다.
+`src/lib/sources.ts` 한 곳에서만 관리한다. 현재 TechCrunch AI, The Verge AI, 슈카월드(YouTube) 세 곳(URL은 PRD §5). 구현 시 URL 유효성을 재확인한다.
 
 ## 데이터 모델 (초안)
 

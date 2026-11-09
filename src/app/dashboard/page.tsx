@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { UserButton } from "@clerk/nextjs";
+import { FetchNewsButton } from "@/components/fetch-news-button";
 import {
   DashboardContent,
   DashboardSkeleton,
@@ -16,7 +17,10 @@ export default function DashboardPage({
     <>
       <header className="flex items-center justify-between border-b border-foreground/10 px-4 py-3 md:px-6">
         <h1 className="text-lg font-semibold">AI 뉴스 수집기</h1>
-        <UserButton />
+        <div className="flex items-center gap-4">
+          <FetchNewsButton />
+          <UserButton />
+        </div>
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-6">
         <Suspense fallback={<DashboardSkeleton />}>

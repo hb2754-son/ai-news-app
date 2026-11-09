@@ -64,6 +64,7 @@
 |---|---|
 | TechCrunch AI | https://techcrunch.com/category/artificial-intelligence/feed/ |
 | The Verge AI | https://www.theverge.com/rss/ai-artificial-intelligence/index.xml |
+| 슈카월드 | https://www.youtube.com/feeds/videos.xml?channel_id=UCsJ6RuBiTVWRX156FVbeaGg |
 
 ※ 구현 시 URL 유효성을 재확인한다. 소스 목록은 코드에서 한 곳(`sources.ts`)으로 관리한다.
 

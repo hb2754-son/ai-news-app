@@ -1,10 +1,18 @@
 import { auth } from "@clerk/nextjs/server";
 import { CategoryBar } from "@/components/category-bar";
 import { NewsCard } from "@/components/news-card";
-import { getArticlesWithCategory, getCategories } from "@/db/queries";
+import { Pagination } from "@/components/pagination";
+import {
+  countArticles,
+  getArticlesWithCategory,
+  getCategories,
+} from "@/db/queries";
+
+const PAGE_SIZE = 9;
 
 export type DashboardSearchParams = Promise<{
   category?: string | string[];
+  page?: string | string[];
 }>;
 
 // 로그인 정보·쿼리·DB 등 요청 시점 데이터에 의존하므로
@@ -15,7 +23,7 @@ export async function DashboardContent({
   searchParams: DashboardSearchParams;
 }) {
   const { userId } = await auth.protect();
-  const { category } = await searchParams;
+  const { category, page: rawPage } = await searchParams;
 
   const categories = await getCategories(userId);
 
@@ -31,7 +39,31 @@ export async function DashboardContent({
     filter = Number(raw);
   }
 
-  const news = await getArticlesWithCategory(userId, filter);
+  const total = await countArticles(userId, filter);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  // 잘못된 값(숫자 아님, 범위 밖)은 가장 가까운 유효 페이지로 맞춘다.
+  const pageStr = Array.isArray(rawPage) ? rawPage[0] : rawPage;
+  const requested = Number.parseInt(pageStr ?? "1", 10);
+  const page = Math.min(
+    Math.max(Number.isNaN(requested) ? 1 : requested, 1),
+    totalPages,
+  );
+
+  const news = await getArticlesWithCategory(
+    userId,
+    filter,
+    PAGE_SIZE,
+    (page - 1) * PAGE_SIZE,
+  );
+
+  function hrefForPage(p: number) {
+    const params = new URLSearchParams();
+    if (selected) params.set("category", selected);
+    if (p > 1) params.set("page", String(p));
+    const qs = params.toString();
+    return qs ? `/dashboard?${qs}` : "/dashboard";
+  }
 
   return (
     <>
@@ -59,6 +91,12 @@ export async function DashboardContent({
           ))}
         </ul>
       )}
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        hrefForPage={hrefForPage}
+      />
     </>
   );
 }
