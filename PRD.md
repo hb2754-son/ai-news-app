@@ -76,13 +76,19 @@
 | 번역/요약/분류 | Claude API |
 | Notion 저장 | Notion MCP 서버 (사용자별 OAuth) |
 
-## 7. 데이터 모델 (초안)
-- **categories**: id, userId, name, description, createdAt
-- **articles**: id, userId, url, source, originalTitle, originalSummary, titleKo, summaryKo, publishedAt, categoryId(nullable), createdAt
+## 7. 데이터 모델
+구현: `src/db/schema.ts` (Drizzle). 컬럼은 DB에서 snake_case로 저장된다.
+- **categories**: id(identity), userId, name, description(기본 빈 문자열), createdAt
+  - `userId` 인덱스
+- **articles**: id(identity), userId, url, source, originalTitle, originalSummary(기본 빈 문자열), titleKo, summaryKo, publishedAt(nullable), categoryId(nullable), createdAt
   - `(userId, url)` 유니크
+  - `(userId, publishedAt)` 인덱스(최신순 조회), `categoryId` 인덱스
   - categoryId가 null이면 '미분류'. 카테고리 삭제 시 `ON DELETE SET NULL`
-- **notion_connections**: userId, 토큰 정보(암호화 저장), 만료 시각, 저장 대상 정보
-- **saved_to_notion**: articleId, userId, notionPageId, savedAt
+  - RSS에 발행일이 없는 항목이 있을 수 있어 publishedAt은 null 허용
+- **notion_connections**: userId(PK, 사용자당 1개), accessTokenEnc, refreshTokenEnc(nullable), expiresAt(nullable), targetType, targetId(둘 다 nullable, 저장 구조 미정), createdAt, updatedAt
+  - 토큰은 `TOKEN_ENCRYPTION_KEY`로 암호화한 값만 저장
+- **saved_to_notion**: id(identity), articleId(FK, `ON DELETE CASCADE`), userId, notionPageId, savedAt
+  - `articleId` 유니크(기사당 한 번만 저장), `userId` 인덱스
 
 ## 8. 프로젝트 폴더 구조
 ```
