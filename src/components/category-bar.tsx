@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { categoryColor } from "@/lib/category-colors";
 
 type CategoryBarProps = {
   categories: { id: number; name: string }[];
@@ -8,19 +9,34 @@ type CategoryBarProps = {
 
 const chipBase =
   "rounded-full border px-3 py-1.5 text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground";
-const chipOn = "border-foreground bg-foreground text-background";
-const chipOff =
+// 전체 칩: 선택 시 색 반전
+const allOn = "border-foreground bg-foreground text-background";
+const allOff =
   "border-foreground/20 text-foreground/75 hover:border-foreground/50 hover:text-foreground";
+// 카테고리 칩: 파스텔 배경, 선택 시 테두리·굵은 글씨로 강조
+const tintOn = "border-foreground font-semibold";
+const tintOff = "border-transparent hover:border-foreground/40";
 
 export function CategoryBar({ categories, selected }: CategoryBarProps) {
-  const items = [
-    { key: undefined, label: "전체", href: "/dashboard" },
+  const items: {
+    key: string | undefined;
+    label: string;
+    href: string;
+    color: string | null; // null = 전체 칩
+  }[] = [
+    { key: undefined, label: "전체", href: "/dashboard", color: null },
     ...categories.map((c) => ({
       key: String(c.id),
       label: c.name,
       href: `/dashboard?category=${c.id}`,
+      color: categoryColor(c.id),
     })),
-    { key: "none", label: "미분류", href: "/dashboard?category=none" },
+    {
+      key: "none",
+      label: "미분류",
+      href: "/dashboard?category=none",
+      color: categoryColor(null),
+    },
   ];
 
   return (
@@ -32,7 +48,13 @@ export function CategoryBar({ categories, selected }: CategoryBarProps) {
             key={item.key ?? "all"}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`${chipBase} ${active ? chipOn : chipOff}`}
+            className={`${chipBase} ${
+              item.color
+                ? `${item.color} ${active ? tintOn : tintOff}`
+                : active
+                  ? allOn
+                  : allOff
+            }`}
           >
             {item.label}
           </Link>

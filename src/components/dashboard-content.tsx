@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { CategoryBar } from "@/components/category-bar";
+import { ReclassifyButton } from "@/components/reclassify-button";
 import { NewsCard } from "@/components/news-card";
 import { Pagination } from "@/components/pagination";
 import {
@@ -68,6 +69,11 @@ export async function DashboardContent({
   return (
     <>
       <CategoryBar categories={categories} selected={selected} />
+      {categories.length > 0 && (
+        <div className="mt-3 flex justify-end">
+          <ReclassifyButton />
+        </div>
+      )}
 
       {news.length === 0 ? (
         <p className="mt-16 text-center text-sm text-foreground/60">
@@ -85,6 +91,7 @@ export async function DashboardContent({
                 titleKo={n.titleKo}
                 summaryKo={n.summaryKo}
                 publishedAt={n.publishedAt}
+                categoryId={n.categoryId}
                 categoryName={n.categoryName}
               />
             </li>

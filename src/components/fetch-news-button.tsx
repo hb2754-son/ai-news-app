@@ -23,9 +23,14 @@ export function FetchNewsButton() {
       const failed: string[] = data.failedSources ?? [];
       let text = `새 뉴스 ${data.inserted}건 저장`;
       if (data.skipped > 0) text += ` (${data.skipped}건은 이미 있음)`;
+      if (data.failed > 0) text += ` · 번역 실패 ${data.failed}건(다음에 재시도)`;
+      if (data.remaining > 0) text += ` · 남은 새 기사 ${data.remaining}건(다시 누르면 이어서 처리)`;
       if (failed.length > 0) text += ` · 가져오기 실패: ${failed.join(", ")}`;
 
-      setMessage({ kind: failed.length > 0 ? "error" : "ok", text });
+      setMessage({
+        kind: failed.length > 0 || data.failed > 0 ? "error" : "ok",
+        text,
+      });
       router.refresh();
     } catch (e) {
       setMessage({
