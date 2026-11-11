@@ -1,6 +1,6 @@
 import { and, count, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "./index";
-import { articles, categories } from "./schema";
+import { articles, categories, savedToNotion } from "./schema";
 
 // 서버에서만 사용. 모든 쿼리는 userId로 필터링한다.
 
@@ -116,9 +116,11 @@ export async function getArticlesWithCategory(
       publishedAt: articles.publishedAt,
       categoryId: articles.categoryId,
       categoryName: categories.name,
+      saved: sql<boolean>`${savedToNotion.id} is not null`,
     })
     .from(articles)
     .leftJoin(categories, eq(articles.categoryId, categories.id))
+    .leftJoin(savedToNotion, eq(savedToNotion.articleId, articles.id))
     .where(and(eq(articles.userId, userId), categoryFilter(categoryId)))
     // 최신순. 발행일이 없는 기사는 뒤로, 같은 시각이면 나중에 저장된 것이 먼저.
     .orderBy(sql`${articles.publishedAt} desc nulls last`, desc(articles.id))
@@ -151,4 +153,35 @@ export async function deleteCategory(userId: string, id: number) {
   await db
     .delete(categories)
     .where(and(eq(categories.id, id), eq(categories.userId, userId)));
+}
+
+/** Notion 저장용 기사 조회 (본인 기사만) + 이미 저장했는지 여부 */
+export async function getArticleForNotion(userId: string, articleId: number) {
+  const [row] = await db
+    .select({
+      id: articles.id,
+      url: articles.url,
+      titleKo: articles.titleKo,
+      summaryKo: articles.summaryKo,
+      publishedAt: articles.publishedAt,
+      categoryName: categories.name,
+      savedPageId: savedToNotion.notionPageId,
+    })
+    .from(articles)
+    .leftJoin(categories, eq(articles.categoryId, categories.id))
+    .leftJoin(savedToNotion, eq(savedToNotion.articleId, articles.id))
+    .where(and(eq(articles.id, articleId), eq(articles.userId, userId)))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function markSavedToNotion(
+  userId: string,
+  articleId: number,
+  notionPageId: string,
+) {
+  await db
+    .insert(savedToNotion)
+    .values({ userId, articleId, notionPageId })
+    .onConflictDoNothing({ target: savedToNotion.articleId });
 }

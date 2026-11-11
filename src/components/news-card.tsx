@@ -1,6 +1,9 @@
 import { categoryColor } from "@/lib/category-colors";
+import { SaveToNotionButton } from "@/components/save-to-notion-button";
 
 type NewsCardProps = {
+  id: number;
+  saved: boolean;
   url: string;
   source: string;
   titleKo: string;
@@ -25,6 +28,8 @@ function formatDate(date: Date) {
 }
 
 export function NewsCard({
+  id,
+  saved,
   url,
   source,
   titleKo,
@@ -55,16 +60,19 @@ export function NewsCard({
         ) : (
           <span />
         )}
-        {/* 카드 전체를 클릭 영역으로 확장(after:absolute) — 새 탭으로 원문 열기 */}
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-medium text-foreground/80 underline-offset-2 outline-none after:absolute after:inset-0 hover:underline"
-        >
-          원문보기
-          <span className="sr-only"> (새 탭에서 열기)</span>
-        </a>
+        <div className="flex items-center gap-3">
+          <SaveToNotionButton articleId={id} saved={saved} />
+          {/* 카드 전체를 클릭 영역으로 확장(after:absolute) — 새 탭으로 원문 열기 */}
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground/80 underline-offset-2 outline-none after:absolute after:inset-0 hover:underline"
+          >
+            원문보기
+            <span className="sr-only"> (새 탭에서 열기)</span>
+          </a>
+        </div>
       </div>
     </article>
   );

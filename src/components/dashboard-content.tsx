@@ -86,6 +86,8 @@ export async function DashboardContent({
           {news.map((n) => (
             <li key={n.id}>
               <NewsCard
+                id={n.id}
+                saved={n.saved}
                 url={n.url}
                 source={n.source}
                 titleKo={n.titleKo}
