@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { CategoryBar } from "@/components/category-bar";
 import { ReclassifyButton } from "@/components/reclassify-button";
 import { NewsCard } from "@/components/news-card";
+import { SearchForm } from "@/components/search-form";
 import { Pagination } from "@/components/pagination";
 import {
   countArticles,
@@ -13,6 +14,7 @@ const PAGE_SIZE = 9;
 
 export type DashboardSearchParams = Promise<{
   category?: string | string[];
+  q?: string | string[];
   page?: string | string[];
 }>;
 
@@ -24,7 +26,7 @@ export async function DashboardContent({
   searchParams: DashboardSearchParams;
 }) {
   const { userId } = await auth.protect();
-  const { category, page: rawPage } = await searchParams;
+  const { category, page: rawPage, q: rawQ } = await searchParams;
 
   const categories = await getCategories(userId);
 
@@ -40,7 +42,10 @@ export async function DashboardContent({
     filter = Number(raw);
   }
 
-  const total = await countArticles(userId, filter);
+  const qStr = Array.isArray(rawQ) ? rawQ[0] : rawQ;
+  const keyword = qStr?.trim().slice(0, 100) || undefined;
+
+  const total = await countArticles(userId, filter, keyword);
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   // 잘못된 값(숫자 아님, 범위 밖)은 가장 가까운 유효 페이지로 맞춘다.
@@ -56,11 +61,13 @@ export async function DashboardContent({
     filter,
     PAGE_SIZE,
     (page - 1) * PAGE_SIZE,
+    keyword,
   );
 
   function hrefForPage(p: number) {
     const params = new URLSearchParams();
     if (selected) params.set("category", selected);
+    if (keyword) params.set("q", keyword);
     if (p > 1) params.set("page", String(p));
     const qs = params.toString();
     return qs ? `/dashboard?${qs}` : "/dashboard";
@@ -68,7 +75,14 @@ export async function DashboardContent({
 
   return (
     <>
-      <CategoryBar categories={categories} selected={selected} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <CategoryBar
+          categories={categories}
+          selected={selected}
+          keyword={keyword}
+        />
+        <SearchForm keyword={keyword} category={selected} />
+      </div>
       {categories.length > 0 && (
         <div className="mt-3 flex justify-end">
           <ReclassifyButton />
@@ -77,9 +91,11 @@ export async function DashboardContent({
 
       {news.length === 0 ? (
         <p className="mt-16 text-center text-sm text-foreground/60">
-          {selected
-            ? "이 카테고리에 뉴스가 없어요."
-            : "아직 가져온 뉴스가 없어요."}
+          {keyword
+            ? `'${keyword}'에 대한 검색 결과가 없어요.`
+            : selected
+              ? "이 카테고리에 뉴스가 없어요."
+              : "아직 가져온 뉴스가 없어요."}
         </p>
       ) : (
         <ul className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">

@@ -1,4 +1,14 @@
-import { and, count, desc, eq, inArray, isNull, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  or,
+  sql,
+} from "drizzle-orm";
 import { db } from "./index";
 import { articles, categories, savedToNotion } from "./schema";
 
@@ -84,15 +94,34 @@ function categoryFilter(categoryId?: number | null) {
       : eq(articles.categoryId, categoryId);
 }
 
+/** 키워드 검색: 한국어 제목·요약, 원문 제목·요약 중 하나라도 포함하면 일치 (대소문자 무시) */
+function keywordFilter(keyword?: string) {
+  if (!keyword) return undefined;
+  const pattern = `%${keyword.replace(/[\\%_]/g, "\\$&")}%`;
+  return or(
+    ilike(articles.titleKo, pattern),
+    ilike(articles.summaryKo, pattern),
+    ilike(articles.originalTitle, pattern),
+    ilike(articles.originalSummary, pattern),
+  );
+}
+
 /** 조건에 맞는 기사 전체 개수 (페이지 수 계산용) */
 export async function countArticles(
   userId: string,
   categoryId?: number | null,
+  keyword?: string,
 ) {
   const [row] = await db
     .select({ total: count() })
     .from(articles)
-    .where(and(eq(articles.userId, userId), categoryFilter(categoryId)));
+    .where(
+      and(
+        eq(articles.userId, userId),
+        categoryFilter(categoryId),
+        keywordFilter(keyword),
+      ),
+    );
   return row.total;
 }
 
@@ -105,6 +134,7 @@ export async function getArticlesWithCategory(
   categoryId: number | null | undefined,
   limit: number,
   offset: number,
+  keyword?: string,
 ) {
   return db
     .select({
@@ -121,7 +151,13 @@ export async function getArticlesWithCategory(
     .from(articles)
     .leftJoin(categories, eq(articles.categoryId, categories.id))
     .leftJoin(savedToNotion, eq(savedToNotion.articleId, articles.id))
-    .where(and(eq(articles.userId, userId), categoryFilter(categoryId)))
+    .where(
+      and(
+        eq(articles.userId, userId),
+        categoryFilter(categoryId),
+        keywordFilter(keyword),
+      ),
+    )
     // 최신순. 발행일이 없는 기사는 뒤로, 같은 시각이면 나중에 저장된 것이 먼저.
     .orderBy(sql`${articles.publishedAt} desc nulls last`, desc(articles.id))
     .limit(limit)
