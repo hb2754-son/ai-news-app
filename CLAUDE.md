@@ -14,6 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `npm run dev` / `npm run build` / `npm run start`
 - `npm run lint` (ESLint)
+- `/news-workflow [브랜치명]`: 새 기능 개발 워크플로우(`.claude/commands/news-workflow.md`). main 확인 → 새 브랜치 생성 → 개발 → '완료' 입력 시 커밋 후 main 병합 → 작업 요약.
 - 테스트 러너는 아직 없다.
 - `drizzle-kit`은 설치만 됐고 `drizzle.config.ts`와 `drizzle/` 마이그레이션은 아직 없다.
 
