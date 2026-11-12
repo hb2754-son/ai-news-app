@@ -1,4 +1,5 @@
 import { categoryColor } from "@/lib/category-colors";
+import { DeleteNewsButton } from "@/components/delete-news-button";
 import { SaveToNotionButton } from "@/components/save-to-notion-button";
 
 type NewsCardProps = {
@@ -40,7 +41,8 @@ export function NewsCard({
 }: NewsCardProps) {
   return (
     <article className="relative flex h-full flex-col gap-3 rounded-lg border border-foreground/10 p-5 transition focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-foreground hover:border-foreground/30 hover:shadow-sm">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-foreground/60">
+      <DeleteNewsButton articleId={id} />
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pr-8 text-xs text-foreground/60">
         <span className={`rounded-full px-2 py-0.5 font-medium ${categoryColor(categoryId)}`}>
           {categoryName ?? "미분류"}
         </span>

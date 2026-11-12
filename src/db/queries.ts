@@ -191,6 +191,13 @@ export async function deleteCategory(userId: string, id: number) {
     .where(and(eq(categories.id, id), eq(categories.userId, userId)));
 }
 
+/** 기사 삭제 (본인 기사만). saved_to_notion 행은 FK cascade로 함께 삭제된다. */
+export async function deleteArticle(userId: string, id: number) {
+  await db
+    .delete(articles)
+    .where(and(eq(articles.id, id), eq(articles.userId, userId)));
+}
+
 /** Notion 저장용 기사 조회 (본인 기사만) + 이미 저장했는지 여부 */
 export async function getArticleForNotion(userId: string, articleId: number) {
   const [row] = await db
