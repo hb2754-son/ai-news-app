@@ -45,7 +45,11 @@ export async function DashboardContent({
   const qStr = Array.isArray(rawQ) ? rawQ[0] : rawQ;
   const keyword = qStr?.trim().slice(0, 100) || undefined;
 
-  const total = await countArticles(userId, filter, keyword);
+  // 배지는 필터·검색과 무관한 전체 개수, 페이지 수는 필터 결과 기준.
+  const [allCount, total] = await Promise.all([
+    countArticles(userId),
+    countArticles(userId, filter, keyword),
+  ]);
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   // 잘못된 값(숫자 아님, 범위 밖)은 가장 가까운 유효 페이지로 맞춘다.
@@ -75,6 +79,9 @@ export async function DashboardContent({
 
   return (
     <>
+      <p className="mb-4 inline-flex items-center rounded-full border border-foreground/10 bg-foreground/5 px-3 py-1 text-xs font-medium text-foreground/70">
+        총 {allCount.toLocaleString("ko-KR")}개의 뉴스
+      </p>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <CategoryBar
           categories={categories}
