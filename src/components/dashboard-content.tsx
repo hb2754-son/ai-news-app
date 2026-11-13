@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { CategoryBar } from "@/components/category-bar";
 import { ReclassifyButton } from "@/components/reclassify-button";
 import { NewsCard } from "@/components/news-card";
+import { NewsCardSkeleton } from "@/components/news-card-skeleton";
 import { SearchForm } from "@/components/search-form";
 import { Pagination } from "@/components/pagination";
 import {
@@ -144,12 +145,13 @@ export function DashboardSkeleton() {
           />
         ))}
       </div>
-      <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div
+        role="status"
+        className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+      >
+        <span className="sr-only">뉴스를 불러오는 중</span>
         {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-44 animate-pulse rounded-lg border border-foreground/10 bg-foreground/5"
-          />
+          <NewsCardSkeleton key={i} />
         ))}
       </div>
     </div>
